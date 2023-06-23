@@ -44,6 +44,7 @@ const sessionConfig = {
 app.use(session(sessionConfig));
 app.use(flash());
 
+// flash middleware
 app.use((req, res, next) => {
     res.locals.success = req.flash('success');
     res.locals.error = req.flash('error');
