@@ -6,6 +6,9 @@ const session = require('express-session');
 const flash = require('connect-flash');
 const ExpressError = require('./utils/ExpressError');
 const methodOverride = require('method-override');
+const passport = require('passport');
+const LocalStrategy = require('passport-local');
+const User = require('./models/user');
 
 const campgrounds = require('./routes/campgrounds');
 const reviews = require('./routes/reviews');
@@ -27,6 +30,7 @@ app.engine('ejs', ejsMate);
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
 
+// middleware
 app.use(express.urlencoded({ extended: true }));
 app.use(methodOverride('_method'));
 app.use(express.static(path.join(__dirname, 'public')));
@@ -41,8 +45,24 @@ const sessionConfig = {
         maxAge: 1000 * 60 * 60 * 24 * 7
     }
 }
+
+// more middleware
 app.use(session(sessionConfig));
 app.use(flash());
+
+// middleware required to initialize Passport and because we need persistent login sessions
+// important note: must use session() before passport.session() to ensure that 
+// the login session is restored in the correct order
+app.use(passport.initialize());
+app.use(passport.session());
+
+// https://github.com/saintedlama/passport-local-mongoose#static-methods
+passport.use(new LocalStrategy(User.authenticate()));
+
+// telling passport how to serialize(how do we store a user in the session) a user
+passport.serializeUser(User.serializeUser());
+// how to get user out of that session
+passport.deserializeUser(User.deserializeUser());
 
 // flash middleware
 app.use((req, res, next) => {
@@ -50,6 +70,12 @@ app.use((req, res, next) => {
     res.locals.error = req.flash('error');
     next();
 });
+
+app.get('/fakeUser', async (req, res) => {
+    const user = new User({ email: 'colt@gmail.com', username: 'colttt' });
+    const newUser = await User.register(user, 'chicken');
+    res.send(newUser);
+})
 
 app.use('/campgrounds', campgrounds);
 app.use('/campgrounds/:id/reviews', reviews);
