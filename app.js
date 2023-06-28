@@ -65,8 +65,9 @@ passport.serializeUser(User.serializeUser());
 // how to get user out of that session
 passport.deserializeUser(User.deserializeUser());
 
-// flash middleware
+// middleware
 app.use((req, res, next) => {
+    res.locals.currentUser = req.user;
     res.locals.success = req.flash('success');
     res.locals.error = req.flash('error');
     next();
