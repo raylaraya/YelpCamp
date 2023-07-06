@@ -25,6 +25,21 @@
         crossorigin="anonymous"></script>
 
     <script src="/javascripts/validateForms.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script>$(".form-control").on("change", function () {
+            const files = Array.from(this.files)
+            updatedFiles = files.map(f => { return f.name });
+            for (let i = 0; i < updatedFiles.length; i++) {
+                if (updatedFiles[i].length > 15) {
+                    updatedFiles[i] = updatedFiles[i].slice(0, 9).concat(`...${updatedFiles[i].slice(-6)}`)
+                }
+            }
+            const fileName = updatedFiles.join(", ")
+            if (files.length > 1) {
+                return $(this).siblings(".form-label").addClass("selected").html(fileName)
+            }
+        });
+    </script>
 
 </body>
 
