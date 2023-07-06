@@ -12,8 +12,10 @@ cloudinary.config({
 // and we pass this to multer in the campgrounds routes file
 const storage = new CloudinaryStorage({
     cloudinary,
-    folder: 'YelpCamp',
-    allowedFormats: ['jpeg', 'png', 'jpg']
+    params: {
+        folder: 'YelpCamp',
+        allowedFormats: ['jpeg', 'png', 'jpg']
+    }
 });
 
 module.exports = {
