@@ -33,28 +33,25 @@ db.once('open', () => {
 const sample = array => array[Math.floor(Math.random() * array.length)];
 
 // deletes everything from our database and replaces it with new campgrounds
-const seedDB = async () => {
-    await Campground.deleteMany({}); // delete everything
 
-    // Seed 50 new camps
+const seedDB = async () => {
+    await Campground.deleteMany({});
     for (let i = 0; i < 50; i++) {
         const random1000 = Math.floor(Math.random() * 1000);
-        const name = `${sample(descriptors)} ${sample(places)}`;
         const price = Math.floor(Math.random() * 20) + 10;
-        const location = `${cities[random1000].city}, ${cities[random1000].state}`
-        const geoData = await geocoder.forwardGeocode({
-            query: location,
-            limit: 1
-        }).send()
-
         const camp = new Campground({
-            // Your user ID. If you delete the users in mongoDB you will get an error when trying to seed your database
             author: '6499fc31aab7dc54feac6c83',
-            title: name,
-            location: location,
-            description: "Lorem ipsum dolor sit amet consectetur adipisicing elit. Molestias magni distinctio porro, cum dicta perspiciatis nam? Ad maiores, nisi voluptatum obcaecati magni neque omnis ab et nobis amet molestias exercitationem.",
+            location: `${cities[random1000].city}, ${cities[random1000].state}`,
+            title: `${sample(descriptors)} ${sample(places)}`,
+            description: 'Lorem ipsum dolor sit amet consectetur, adipisicing elit. Adipisci iste modi, minus eum quis nemo et fugiat, doloremque eveniet nobis natus commodi odit aliquid quia totam voluptatum quasi sint corporis!',
             price,
-            geometry: geoData.body.features[0].geometry,
+            geometry: {
+                type: "Point",
+                coordinates: [
+                    cities[random1000].longitude,
+                    cities[random1000].latitude
+                ],
+            },
             images: [
                 {
                     url: 'https://res.cloudinary.com/dpahchhsg/image/upload/v1688683847/YelpCamp/wybwqj5vnagmyxfq7i6x.jpg',
