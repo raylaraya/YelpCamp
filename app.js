@@ -28,7 +28,12 @@ const userRoutes = require('./routes/users');
 const campgroundRoutes = require('./routes/campgrounds');
 const reviewRoutes = require('./routes/reviews');
 
-mongoose.connect('mongodb://localhost:27017/yelp-camp', {
+const MongoStore = require('connect-mongo');
+
+// const dbUrl = process.env.DB_URL; // connect to atlas cloud db
+const dbUrl = 'mongodb://localhost:27017/yelp-camp';
+
+mongoose.connect(dbUrl, {
     useNewUrlParser: true,
     useUnifiedTopology: true
 });
@@ -51,7 +56,20 @@ app.use(methodOverride('_method'));
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(mongoSanitize());
 
+const store = MongoStore.create({
+    mongoUrl: dbUrl,
+    touchAfter: 24 * 60 * 60, //updates session only once every 24 hours and not every time a user refreshes the page
+    crypto: {
+        secret: 'thisshouldbeabettersecret'
+    }
+});
+
+store.on('error', function (e) {
+    console.log('Session Store Error', e);
+})
+
 const sessionConfig = {
+    store,
     name: 'session',
     secret: 'thisshouldbeabettersecret',
     resave: false,
